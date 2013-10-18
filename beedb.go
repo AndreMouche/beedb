@@ -29,6 +29,7 @@ type Model struct {
 	QuoteIdentifier string
 	ParamIdentifier string
 	ParamIteration  int
+	UpdateStr       string
 }
 
 /**
@@ -270,15 +271,15 @@ func (orm *Model) FindMap() (resultsSlice []map[string][]byte, err error) {
 			case reflect.String:
 				str = vv.String()
 				result[key] = []byte(str)
-			//时间类型	
+				//时间类型
 			case reflect.Struct:
 				str = rawValue.Interface().(time.Time).Format("2006-01-02 15:04:05.000 -0700")
 				result[key] = []byte(str)
 			case reflect.Bool:
 				if (vv.Bool()) {
-				  result[key] = []byte("1")
+					result[key] = []byte("1")
 				} else {
-				  result[key] = []byte("0")
+					result[key] = []byte("0")
 				}
 			}
 		}
@@ -297,8 +298,8 @@ func (orm *Model) generateSql() (a string) {
 			if orm.WhereStr != "" {
 				a = fmt.Sprintf("%v WHERE %v", a, orm.WhereStr)
 			}
-			a = fmt.Sprintf("select * from (%v) "+
-				"as a where rownum between %v and %v",
+			a = fmt.Sprintf("select * from (%v) " +
+						"as a where rownum between %v and %v",
 				a,
 				orm.OffsetStr,
 				orm.LimitStr)
@@ -506,7 +507,7 @@ func (orm *Model) Update(properties map[string]interface{}) (int64, error) {
 	if orm.ParamIdentifier == "pg" {
 		if n := len(orm.ParamStr); n > 0 {
 			for i := 1; i <= n; i++ {
-				orm.WhereStr = strings.Replace(orm.WhereStr, "$"+strconv.Itoa(i), "$"+strconv.Itoa(orm.ParamIteration), 1)
+				orm.WhereStr = strings.Replace(orm.WhereStr, "$" + strconv.Itoa(i), "$" + strconv.Itoa(orm.ParamIteration), 1)
 			}
 		}
 	}
@@ -516,14 +517,21 @@ func (orm *Model) Update(properties map[string]interface{}) (int64, error) {
 	} else {
 		condition = ""
 	}
+
+	//add updateStr
+	if orm.UpdateStr != "" {
+		updates = append(updates, orm.UpdateStr)
+	}
+
 	statement := fmt.Sprintf("UPDATE %v%v%v SET %v %v",
 		orm.QuoteIdentifier,
 		orm.TableName,
 		orm.QuoteIdentifier,
 		strings.Join(updates, ", "),
 		condition)
+
 	if OnDebug {
-		fmt.Println("tttttstatment::",statement)
+		fmt.Println("statment::", statement)
 		fmt.Println(orm)
 	}
 	res, err := orm.Exec(statement, args...)
@@ -662,4 +670,5 @@ func (orm *Model) InitModel() {
 	orm.GroupByStr = ""
 	orm.HavingStr = ""
 	orm.ParamIteration = 1
+	orm.UpdateStr = ""
 }
