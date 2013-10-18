@@ -523,7 +523,7 @@ func (orm *Model) Update(properties map[string]interface{}) (int64, error) {
 		strings.Join(updates, ", "),
 		condition)
 	if OnDebug {
-		fmt.Println(statement)
+		fmt.Println("tttttstatment::",statement)
 		fmt.Println(orm)
 	}
 	res, err := orm.Exec(statement, args...)

@@ -15,7 +15,7 @@ func getTypeName(obj interface{}) (typestr string) {
 
 	lastDotIndex := strings.LastIndex(typestr, ".")
 	if lastDotIndex != -1 {
-		typestr = typestr[lastDotIndex+1:]
+		typestr = typestr[lastDotIndex + 1:]
 	}
 
 	return
@@ -65,7 +65,7 @@ func pluralizeString(str string) string {
 		return str
 	}
 	if strings.HasSuffix(str, "y") {
-		str = str[:len(str)-1] + "ie"
+		str = str[:len(str) - 1] + "ie"
 	}
 	return str + "s"
 }
@@ -115,7 +115,7 @@ func scanMapIntoStruct(obj interface{}, objMap map[string][]byte) error {
 				return errors.New("arg " + key + " as int: " + err.Error())
 			}
 			v = x
-		//Now only support Time type
+			//Now only support Time type
 		case reflect.Struct:
 			if structField.Type().String() != "time.Time" {
 				return errors.New("unsupported struct type in Scan: " + structField.Type().String())
